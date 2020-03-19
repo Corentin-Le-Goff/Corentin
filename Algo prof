@@ -1,0 +1,193 @@
+ALGORITHME jeu
+
+ VARIABLE
+
+  aireDeJeu : TABLEAU [1,10] DE CHAINE
+  colonne   : ENTIER
+  ligne     : ENTIER
+
+  xJoueur  : ENTIER
+  yJoueur  : ENTIER
+
+  xMonstre : ENTIER
+  yMonstre : ENTIER
+
+  pastilleAvale : BOOLEEN <- FAUX
+
+ CONSTANTE
+
+  xObstacle1 : ENTIER <- 1
+  yObstacle1 : ENTIER <- 1
+
+  xObstacle2 : ENTIER <- 4
+  yObstacle2 : ENTIER <- 3
+  
+  xPastille  : ENTIER <- 2
+  yPastille  : ENTIER <- 2
+  
+  tailleTuile : ENTIER <- 20  // taille exprimée en pixels
+
+ PROCEDURE afficherMur ( x : ENTIER , y : ENTIER )
+ 
+  dessinerRectangle ( x * tailleTuile , y * tailleTuile , tailleTuile , tailleTuile , "GRIS")
+
+ FIN_PROCEDURE
+
+ PROCEDURE afficherSol ( x : ENTIER , y : ENTIER )
+ 
+  dessinerRectangle ( x * tailleTuile , y * tailleTuile , tailleTuile , tailleTuile , "VERT")
+
+ FIN_PROCEDURE
+
+ PROCEDURE afficherJoueur ( x : ENTIER , y : ENTIER )
+ 
+  dessinerCercle ( (x+0,5) * tailleTuile , (y+0,5) * tailleTuile , tailleTuile , "JAUNE")
+
+ FIN_PROCEDURE
+
+ PROCEDURE afficherMonstre ( x : ENTIER , y : ENTIER )
+ 
+  dessinerCercle ( (x+0,5) * tailleTuile , (y+0,5) * tailleTuile , tailleTuile , "ROUGE")
+
+ FIN_PROCEDURE
+
+ PROCEDURE afficherJeu ()
+
+  POUR ligne DE 1 A 10 FAIRE
+ 
+    POUR colonne DE 1 A 10 FAIRE
+
+     CAS aireDeJeu[ligne][colonne] PARMI
+
+      '#' : afficherMur     ( colonne , ligne )
+      ' ' : afficherSol     ( colonne , ligne )
+      'J' : afficherSol     ( colonne , ligne )
+      'M' : afficherSol     ( colonne , ligne )
+
+     FIN_CAS
+
+    FIN_POUR
+
+  FIN_POUR
+
+  afficherJoueur  ( xJoueur  , yJoueur  )
+  afficherMonstre ( xMonstre , yMonstre )
+  
+ FIN_PROCEDURE
+PROCEDURE initialiser ()
+
+  aireDeJeu [ 1] <- "##########"
+  aireDeJeu [ 2] <- "#   J    #"
+  aireDeJeu [ 3] <- "# #### ###"
+  aireDeJeu [ 4] <- "#        #"
+  aireDeJeu [ 5] <- "#      # #"
+  aireDeJeu [ 6] <- "#  ### # #"
+  aireDeJeu [ 7] <- "#      # #"
+  aireDeJeu [ 8] <- "#      # #"
+  aireDeJeu [ 9] <- "#    M   #"
+  aireDeJeu [10] <- "##########"
+  
+  POUR ligne DE 1 A 10 FAIRE
+ 
+   POUR colonne DE 1 A 10 FAIRE
+
+    CAS aireDeJeu[ligne][colonne] PARMI
+
+      'J' : xJoueur = colonne
+            yJoueur = ligne
+      'M' : xMonstre = colonne
+            yMonstre = ligne
+
+     FIN_CAS
+
+    FIN_POUR
+
+  FIN_POUR
+
+
+ FIN_PROCEDURE
+ 
+ 
+ PROCEDURE deplacerJoueur ( dir : ENTIER)
+ 
+  CAS dir PARMI
+
+    0 : SI ( yJoueur > 0 )
+         ALORS SI ( aireDeJeu[yJoueur-1][xJoueur] <> '#' ) 
+                ALORS yJoueur <- yJoueur - 1
+               FIN_SI
+        FIN_SI
+     
+    1 : SI ( xJoueur < 9 )
+         ALORS SI ( aireDeJeu[yJoueur][xJoueur+1] <> '#' ) 
+                ALORS xJoueur <- xJoueur + 1
+               FIN_SI
+        FIN_SI
+
+    2 : SI ( yJoueur < 9 )
+         ALORS SI ( aireDeJeu[yJoueur+1][xJoueur] <> '#' )
+                ALORS yJoueur <- yJoueur + 1
+               FIN_SI
+        FIN_SI
+
+    3 : SI ( xJoueur > 0 )
+         ALORS SI ( aireDeJeu[yJoueur][xJoueur-1] <> '#' )
+                ALORS xJoueur <- xJoueur - 1
+               FIN_SI
+        FIN_SI
+   
+   FIN_CAS_PARMI
+FIN_PROCEDURE
+ 
+  PROCEDURE deplacerMonstre ( dir : ENTIER)
+ 
+  CAS dir PARMI
+
+    0 : SI ( yMonstre > 0 )
+         ALORS SI ( aireDeJeu[yMonstre-1][xMonstre] <> '#' ) 
+                ALORS yMonstre <- yMonstre - 1
+               FIN_SI
+        FIN_SI
+     
+    1 : SI ( xMonstre < 9 )
+         ALORS SI ( aireDeJeu[yMonstre][xMonstre+1] <> '#' ) 
+                ALORS xMonstre <- xMonstre + 1
+               FIN_SI
+        FIN_SI
+
+    2 : SI ( yMonstre < 9 )
+         ALORS SI ( aireDeJeu[yMonstre+1][xMonstre] <> '#' )
+                ALORS yMonstre <- yMonstre + 1
+               FIN_SI
+        FIN_SI
+
+    3 : SI ( xMonstre > 0 )
+         ALORS SI ( aireDeJeu[yMonstre][xMonstre-1] <> '#' )
+                ALORS xMonstre <- xMonstre - 1
+               FIN_SI
+        FIN_SI
+   
+   FIN_CAS_PARMI
+  
+ 
+ FIN_PROCEDURE
+
+ 
+ initialiser ()
+ afficherJeu ()
+
+ 
+ TANT_QUE ( xJoueur <> xMonstre OU yJoueur <> yMonstre ) FAIRE
+   
+   deplacerJoueur  ( HASARD (4) )
+   deplacerMonstre ( HASARD (4) )
+   afficherJeu ()
+
+ FIN_TANT_QUE
+ 
+  SI ( pastilleAvale )
+    ALORS AFFICHER ("Le joueur a détruit le monstre !!")
+    SINON AFFICHER ("Le monstre a mangé le joueur !!")
+  FIN_SI
+
+ FIN
